@@ -9,15 +9,18 @@ st.set_page_config(page_title="Cricket Elite V8", page_icon="🏏", layout="wide
 
 @st.cache_resource
 def load_assets():
-    if not os.path.exists('cricket_v8_final_global.pkl') or not os.path.exists('stadiums.csv'):
+    # REMOVE the D:\ check. Just check if the files exist in the current directory.
+    files = ['cricket_v8_final_global.pkl', 'stadiums.csv', 
+             'pure_death_batter_dna.csv', 'pure_death_bowler_dna.csv']
+    
+    if not all(os.path.exists(f) for f in files):
         return None, None, None, None
+        
     model = joblib.load('cricket_v8_final_global.pkl')
     stadium_df = pd.read_csv('stadiums.csv')
     bat_dna = pd.read_csv('pure_death_batter_dna.csv').set_index('player_name')
     bowl_dna = pd.read_csv('pure_death_bowler_dna.csv').set_index('player_name')
     return model, stadium_df, bat_dna, bowl_dna
-
-model, stadium_df, bat_dna, bowl_dna = load_assets()
 
 # 2. ERROR CHECKING
 if model is None:
