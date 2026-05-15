@@ -9,26 +9,34 @@ st.set_page_config(page_title="Cricket Elite V8", page_icon="🏏", layout="wide
 
 @st.cache_resource
 def load_assets():
-    # REMOVE the D:\ check. Just check if the files exist in the current directory.
-    files = ['cricket_v8_final_global.pkl', 'stadiums.csv', 
-             'pure_death_batter_dna.csv', 'pure_death_bowler_dna.csv']
+    # Define filenames clearly
+    m_file = 'cricket_v8_final_global.pkl'
+    s_file = 'stadiums.csv'
+    bat_file = 'pure_death_batter_dna.csv'
+    bowl_file = 'pure_death_bowler_dna.csv'
     
-    if not all(os.path.exists(f) for f in files):
+    # Check if ALL files exist in the current directory
+    if not all(os.path.exists(f) for f in [m_file, s_file, bat_file, bowl_file]):
         return None, None, None, None
         
-    model = joblib.load('cricket_v8_final_global.pkl')
-    stadium_df = pd.read_csv('stadiums.csv')
-    bat_dna = pd.read_csv('pure_death_batter_dna.csv').set_index('player_name')
-    bowl_dna = pd.read_csv('pure_death_bowler_dna.csv').set_index('player_name')
-    return model, stadium_df, bat_dna, bowl_dna
+    try:
+        model = joblib.load(m_file)
+        stadium_df = pd.read_csv(s_file)
+        bat_dna = pd.read_csv(bat_file).set_index('player_name')
+        bowl_dna = pd.read_csv(bowl_file).set_index('player_name')
+        return model, stadium_df, bat_dna, bowl_dna
+    except Exception as e:
+        st.error(f"Error loading files: {e}")
+        return None, None, None, None
+
+# Assign variables clearly so they ALWAYS exist
+model, stadium_df, bat_dna, bowl_dna = load_assets()
 
 # 2. ERROR CHECKING
-if model is None:
-    st.error("❌ Missing Files! Ensure PKL and all CSVs are in D:\GCT\mini_project")
+if model is None or stadium_df is None:
+    st.error("❌ Resource Error: Missing or Corrupt files in GitHub repository.")
+    st.info("Check if your .pkl and .csv files are in the root folder of your GitHub repo.")
     st.stop()
-
-st.title("🏏 Cricket Elite V8: Death Over Predictor")
-st.markdown("---")
 
 # 3. UI LAYOUT
 col1, col2 = st.columns(2)
